@@ -1,0 +1,23 @@
+---
+
+wireguard_vpn_sysctl:
+  - name: net.ipv4.ip_forward
+    value: "1"
+  - name: net.ipv6.conf.all.forwarding
+    value: "1"
+  - name: net.ipv6.conf.default.forwarding
+    value: "1"
+  - name: net.ipv6.conf.all.forwarding
+    value: "1"
+  - name: net.ipv6.conf.all.proxy_ndp
+    value: "1"
+  - name: net.ipv6.conf.all.accept_ra
+    value: "1"
+
+wireguard_vpn_listen_port: 51820
+
+wireguard_vpn_admin_username: "admin"
+#wireguard_vpn_admin_password: "supersecret"
+
+#wireguard_vpn_ipv6_prefix: "2001:db8:deaf:beef::/64"
+wireguard_vpn_ipv6_prefix: 

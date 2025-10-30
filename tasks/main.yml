@@ -1,0 +1,112 @@
+---
+
+- name: install nginx
+  apt:
+    pkg: nginx
+    state: latest
+  tags:
+    - wgui
+
+- name: install certbot
+  apt:
+    pkg:
+      - certbot
+      - python3-certbot-nginx
+    state: latest
+  tags:
+    - wgui
+
+- name: generate ssl certificate
+  shell:
+    cmd: certbot certonly -d {{ ansible_fqdn }} --nginx --agree-tos --register-unsafely-without-email
+    creates: /etc/letsencrypt/renewal/{{ ansible_fqdn }}.conf
+  tags:
+    - wgui
+
+- name: deploy nginx vhost
+  template:
+    src: wgui.conf.j2
+    dest: /etc/nginx/conf.d/wgui.conf
+  notify: reload nginx
+  tags:
+    - wgui
+
+- name: Reconfigure sysctl
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_file: /etc/sysctl.d/99-wgui.conf
+    reload: yes
+  loop: "{{ wireguard_vpn_sysctl }}"
+  tags:
+    - wgui
+
+- name: install wireguard
+  apt:
+    pkg:
+      - wireguard
+      - wireguard-tools
+    state: latest
+  tags:
+    - wgui
+
+- name: download wgui
+  get_url:
+    url: https://github.com/ngoduykhanh/wireguard-ui/releases/download/v0.6.2/wireguard-ui-v0.6.2-linux-amd64.tar.gz
+    dest: /root/wireguard-ui-v0.6.2-linux-amd64.tar.gz
+  tags:
+    - wgui
+
+- name: create dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - /opt/wgui/db/server
+  tags:
+    - wgui
+
+- name: Extract wgui into /opt/wgui
+  ansible.builtin.unarchive:
+    src: /root/wireguard-ui-v0.6.2-linux-amd64.tar.gz
+    dest: /opt/wgui/
+    remote_src: yes
+  tags:
+    - wgui
+
+- name: Deploy wgui configuration
+  template:
+    src: "{{ item }}.j2"
+    dest: "/opt/wgui/db/server/{{ item }}"
+  loop:
+    - global_settings.json
+    - interfaces.json
+  notify: restart wgui
+  tags:
+    - wgui
+
+- name: Deploy systemd units
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+  loop:
+    - wg0-restarter.service
+    - wg0-watch.path
+    - wg0.service
+    - wgui.service
+  tags:
+    - wgui
+
+- name: Enable systemd units
+  systemd:
+    state: started
+    daemon_reload: yes
+    enabled: yes
+    name: "{{ item }}"
+  loop:
+    - wg0-restarter.service
+    - wg0-watch.path
+    - wg0.service
+    - wgui.service
+  tags:
+    - wgui

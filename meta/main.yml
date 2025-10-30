@@ -1,0 +1,25 @@
+galaxy_info:
+  role_name: wgui
+  author: lukasic
+  description: Role for deploying ngoduykhanh/wireguard-ui
+
+  license: WTFPL
+
+  min_ansible_version: 2.10
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+        - bookworm
+        - trixie
+
+  galaxy_tags: []
+
+dependencies: []

@@ -1,0 +1,17 @@
+#
+# ansible managed
+#
+
+[Unit]
+Description=Wireguard UI
+After=network-online.target nftables.service
+
+[Service]
+ExecStart=/opt/wgui/wireguard-ui
+WorkingDirectory=/opt/wgui
+TimeoutSec=0
+RestartSec=2
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

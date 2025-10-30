@@ -1,0 +1,14 @@
+#
+# ansible managed
+#
+
+[Unit]
+Description=wg-quick@wg0 restarter
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl restart wg-quick@wg0.service
+
+[Install]
+WantedBy=multi-user.target

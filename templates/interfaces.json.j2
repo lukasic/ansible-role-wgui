@@ -1,0 +1,12 @@
+{
+    "addresses": [
+    	{% if wireguard_vpn_ipv6_prefix %}
+    	{{ wireguard_vpn_ipv6_prefix[:-3] }}f00:1/112,
+    	{% endif %}
+        "192.168.221.1/24"
+    ],
+    "listen_port": "{{ wireguard_vpn_listen_port }}",
+    "updated_at": "1990-01-01T00:00:00.000000000Z",
+    "post_up": "",
+    "post_down": ""
+}
